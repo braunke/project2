@@ -29,16 +29,13 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     // draw line received from server
-    socket.on('draw_line', function (data) {
-        var line = data.line;
-        var lineWidth = data.width;
+    socket.on('draw_line', function (line) {
         context.beginPath();
-        context.moveTo(line[0].x * width, line[0].y * height);
-        context.lineTo(line[1].x * width, line[1].y * height);
-        context.lineWidth = lineWidth;
+        context.moveTo(line.startPosition.x * width, line.startPosition.y * height);
+        context.lineTo(line.endPosition.x * width, line.endPosition.y * height);
+        context.lineWidth = line.width;
         context.stroke();
-
-
+        context.strokeStyle=line.color;
     });
     function getLineWidth(){
         var LineWidthInput = document.querySelector('input[name ="lineWidth"]');
@@ -47,12 +44,26 @@ document.addEventListener("DOMContentLoaded", function() {
         }
         return (lineWidth);
     }
+    function getColor(){
+        var ColorChoice = document.querySelector('input[name="colorChoice"]');
+        if (ColorChoice){
+            var color = ColorChoice.value;
+        }
+        return (color);
+    }
     // main loop, running every 25ms
     function mainLoop() {
         // check if the user is drawing
         if (mouse.click && mouse.move && mouse.pos_prev) {
             // send line to to the server
-            socket.emit('draw_line', { line: [ mouse.pos, mouse.pos_prev ] , width: getLineWidth()});
+            var line = {
+                startPosition: mouse.pos_prev,
+                endPosition: mouse.pos,
+                width: getLineWidth(),
+                color: getColor()
+            };
+            socket.emit('draw_line', line);
+
             mouse.move = false;
         }
         mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
