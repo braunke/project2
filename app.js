@@ -11,24 +11,31 @@ server.listen(8080);
 app.use(express.static(__dirname + '/public'));
 console.log("Server running on 127.0.0.1:8080");
 
-// array of all lines drawn
-var lines = [];
+// array of all shapes drawn
+var shapes = [];
 
 // event-handler for new incoming connections
 io.on('connection', function (socket) {
 
     // first send the history to the new client
-    for (var i in lines) {
-        socket.emit('draw_line', lines[i] );
+    for (var i in shapes) {
+        socket.emit('draw_shape', shapes[i] );
     }
-    //gets new line being drawn
-    // add handler for message type "draw_line".
-    socket.on('draw_line', function (line) {
-        // add received line to history
-        lines.push(line);
-        // send line to all clients
-        io.emit('draw_line', line);
+    //gets new shape being drawn
+    // add handler for message type "draw_shape".
+    socket.on('draw_shape', function (shape) {
+        // add received shape to history
+        shapes.push(shape);
+        // send shape to all clients
+        io.emit('draw_shape', shape);
     });
+    //clears
+    socket.on('clear', function () {
+        shapes=[];
+        io.emit('clear');
+    });
+
+
 
 
 });

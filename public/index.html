@@ -11,8 +11,11 @@
 </head>
 <body>
 <span>Line width</span> <input type="number" value="1" name ="lineWidth">
-<button type="submit" name="clearBtn">Clear Canvas</button>
+<button id="clearButton">Clear</button>
 <input type="color" value="#000000" name="colorChoice">
+<input type="radio" name="shape" value="line" checked>Line
+<input type="radio" name="shape" value="circle">Circle
+<input type="radio" name="shape" value="rectangle">Rectangle
 <canvas id="drawing"></canvas>
 </body>
 </html>
