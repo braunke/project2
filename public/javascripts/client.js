@@ -55,13 +55,47 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function drawCircle(circle) {
+        // save state
+        context.save();
+
+        // translate context
+        context.translate(canvas.width / 2, canvas.height / 2);
+
+        // scale context horizontally
+        context.scale(2, 1);
+
+        // draw circle which will be stretched into an oval
         context.beginPath();
         var x = circle.startPosition.x * width;
         var y = circle.startPosition.y * height;
-        context.arc(x,y,50,0,2*Math.PI);
-        context.lineWidth = circle.width;
-        context.strokeStyle = circle.color;
+        var b = circle.endPosition.x * width;
+        var c = circle.endPosition.y * height;
+        var centerX = b- x;
+        var centerY = c - y;
+        var radius = centerY + 2;
+        if ( radius <=0){radius * -1}
+        context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
+
+        // restore to original state
+        context.restore();
+
+        // apply styling
+        context.fillStyle = '#8ED6FF';
+        context.fill();
+        context.lineWidth = 5;
+        context.strokeStyle = 'black';
         context.stroke();
+
+       // context.beginPath();
+  //      var x = circle.startPosition.x * width;
+    //    var y = circle.startPosition.y * height;
+      //  var b = circle.endPosition.x * width;
+        //var c = circle.endPosition.y * height;
+
+ //       context.arc(x,y,50,0,2*Math.PI);
+   //     context.lineWidth = circle.width;
+     //   context.strokeStyle = circle.color;
+       // context.stroke();
     }
     function drawRectangle(rectangle){
         context.beginPath();
@@ -142,7 +176,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function completeShape() {
         var shapeType = getShapeType();
-        if (shapeType == "rectangle") {
+        if (shapeType == "rectangle" || shapeType == "circle") {
 
             // send line to to the server
 
