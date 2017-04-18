@@ -18,8 +18,15 @@ document.addEventListener("DOMContentLoaded", function() {
     canvas.height = height;
 
     // register mouse event handlers
-    canvas.onmousedown = function(e){ mouse.click = true; };
-    canvas.onmouseup = function(e){ mouse.click = false; };
+    canvas.onmousedown = function(e){
+        mouse.click = true;
+        mouse.pos_prev.x = e.clientX / width;
+        mouse.pos_prev.y = e.clientY / height;
+    };
+    canvas.onmouseup = function(e){
+        mouse.click = false;
+        completeShape();
+    };
 
     canvas.onmousemove = function(e) {
         // normalize mouse position to range 0.0 - 1.0
@@ -60,7 +67,14 @@ document.addEventListener("DOMContentLoaded", function() {
         context.beginPath();
         var x =rectangle.startPosition.x * width;
         var y = rectangle.startPosition.y * height;
-        context.rect(x-150,y-100,150,100);
+        var b = rectangle.endPosition.x * width;
+        var c = rectangle.endPosition.y * height;
+
+        var xdiff = b - x;
+        var ydiff = c - y;
+        var lengthRec = xdiff;
+        var heightRec = ydiff;
+        context.rect(x,y,lengthRec,heightRec);
         context.lineWidth = rectangle.width;
         context.strokeStyle = rectangle.color;
         context.stroke();
@@ -93,16 +107,45 @@ document.addEventListener("DOMContentLoaded", function() {
         socket.emit('clear');
 
     }
+    function getShapeType(){
+        var shapeInput = document.querySelector('input[name="shape"]:checked');
+        var shapeType = 'line';
+        if (shapeInput) {
+            shapeType = shapeInput.value;
+        }
+        return shapeType;
+    }
     // main loop, running every 25ms
     function mainLoop() {
         // check if the user is drawing
-        if (mouse.click && mouse.move && mouse.pos_prev) {
-            // send line to to the server
-            var shapeInput = document.querySelector('input[name="shape"]:checked');
-            var shapeType = 'line';
-            if (shapeInput) {
-                shapeType = shapeInput.value;
+        var shapeType = getShapeType();
+        if (shapeType == "line") {
+            if (mouse.click && mouse.move && mouse.pos_prev) {
+                // send line to to the server
+
+                var shape = {
+                    startPosition: mouse.pos_prev,
+                    endPosition: mouse.pos,
+                    width: getLineWidth(),
+                    color: getColor(),
+                    type: shapeType
+                };
+                socket.emit('draw_shape', shape);
+
+                mouse.move = false;
             }
+            mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
+
+        }
+        setTimeout(mainLoop, 25);
+    }
+
+    function completeShape() {
+        var shapeType = getShapeType();
+        if (shapeType == "rectangle") {
+
+            // send line to to the server
+
             var shape = {
                 startPosition: mouse.pos_prev,
                 endPosition: mouse.pos,
@@ -111,11 +154,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 type: shapeType
             };
             socket.emit('draw_shape', shape);
-
-            mouse.move = false;
         }
-        mouse.pos_prev = {x: mouse.pos.x, y: mouse.pos.y};
-        setTimeout(mainLoop, 25);
     }
     mainLoop();
 });
