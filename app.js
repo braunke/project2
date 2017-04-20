@@ -29,7 +29,7 @@ io.on('connection', function (socket) {
         // send shape to all clients
         io.emit('draw_shape', shape);
     });
-    //clears
+    //clears sets shape array to nothing
     socket.on('clear', function () {
         shapes=[];
         io.emit('clear');

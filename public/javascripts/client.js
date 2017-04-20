@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function() {
+    //creates a mouse object to represent its state
     var mouse = {
         click: false,
         move: false,
@@ -10,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var context = canvas.getContext('2d');
     var width   = window.innerWidth;
     var height  = window.innerHeight;
-    console.log('io', io);
+
     var socket  = io.connect();
 
     // set canvas to full browser width/height
@@ -45,7 +46,8 @@ document.addEventListener("DOMContentLoaded", function() {
             default: console.log('Unknown shape to draw: ' + shape.type);
         }
     });
-
+    //series of functions that create the art
+    //first one for drawing lines / continuous draw
     function drawLine(line) {
         context.beginPath();
         context.moveTo(line.startPosition.x * width, line.startPosition.y * height);
@@ -56,8 +58,8 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function drawCircle(circle) {
-        // save state
-        context.save();
+
+
         //draws circle based on starting and end positions of curser
         context.beginPath();
         var x = circle.startPosition.x * width;
@@ -70,8 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if ( radius <=0){radius *= -1}
         context.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
 
-        // restore to original state
-        context.restore();
+
 
         // apply styling
         if (circle.fillColor){
@@ -108,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function() {
         var lengthRec = xdiff;
         var heightRec = ydiff;
         context.rect(x,y,lengthRec,heightRec);
+        //checks if there should be a fill color / if fill color is undefined
         if (rectangle.fillColor){
             context.fillStyle = rectangle.fillColor;
             context.fill();
@@ -121,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function() {
     socket.on('clear', function () {
         context.clearRect(0, 0, canvas.width, canvas.height);
     });
-    //uses user choices to set a line width and color
+    //uses user choices to set a line width and color and fill color
     function getLineWidth(){
         var LineWidthInput = document.querySelector('input[name ="lineWidth"]');
         if (LineWidthInput){
