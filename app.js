@@ -6,6 +6,10 @@ var express = require('express'),
 // start webserver on port 8080
 var server =  http.createServer(app);
 var io = socketIo.listen(server);
+io.configure(function(){
+    io.set("transports", ["xhr-polling"]);
+    io.set("polling duration", 10);
+});
 server.listen(8080);
 // add directory with our static files
 app.use(express.static(__dirname + '/public'));
